@@ -6,10 +6,7 @@ plugins {
 static def getDate() { return new Date().format('yyyyMMdd') }
 
 def getVersionName = {
-    // Show clean "CS Launcher V3" style version names.
-    String semVer = "3.0.0"
-    
-    // Try to get a git tag for the full version
+    String semVer = "1.0.0"
     ByteArrayOutputStream TAG = new ByteArrayOutputStream()
     exec {
         try {
@@ -20,14 +17,12 @@ def getVersionName = {
             e.printStackTrace();
         }
     }
-    
     String tagStr = TAG.toString().trim()
     if (!tagStr.isEmpty()) {
         if (tagStr ==~ /^v?\d+(?:\.\d+)*.*/) {
             return tagStr
         }
     }
-    
     return "v" + semVer
 }
 
@@ -51,7 +46,6 @@ configurations {
 
 android {
     namespace 'net.kdt.pojavlaunch'
-
     compileSdk = 34
 
     lintOptions {
@@ -87,11 +81,10 @@ android {
         targetSdkVersion 34
         versionCode 10000000
         versionName getVersionName()
-        multiDexEnabled true //important
+        multiDexEnabled true
         resValue 'string', 'curseforge_api_key', getCFApiKey()
         externalNativeBuild {
             ndkBuild {
-                // Fix for Windows command line length limit
                 arguments "APP_SHORT_COMMANDS=true"
             }
         }
@@ -104,8 +97,8 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.customDebug
-            resValue "string", "app_name", "CS Launcher V3"
-            resValue "string", "app_short_name", "CS Launcher V3"
+            resValue "string", "app_name", "Blaze Client"
+            resValue "string", "app_short_name", "Blaze Client"
             resValue 'string', 'application_package', 'com.craftstudio.cslauncherv3.debug'
             resValue 'string', 'storageProviderAuthorities', 'com.craftstudio.cslauncherv3.scoped.gamefolder.debug'
             resValue 'string', 'shareProviderAuthority', 'com.craftstudio.cslauncherv3.scoped.controlfolder.debug'
@@ -119,17 +112,13 @@ android {
             initWith proguard
             debuggable false
         }
-
         release {
-            // Do not enable minification — it obfuscates java.awt classes.
             minifyEnabled false
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            // defaultConfig already set
-            // multiDexEnabled = true
             signingConfig signingConfigs.release
-            resValue "string", "app_name", "CS Launcher V3"
-            resValue "string", "app_short_name", "CS Launcher V3"
+            resValue "string", "app_name", "Blaze Client"
+            resValue "string", "app_short_name", "Blaze Client"
             resValue 'string', 'storageProviderAuthorities', 'com.craftstudio.cslauncherv3.gamefolder'
             resValue 'string', 'application_package', 'com.craftstudio.cslauncherv3'
         }
@@ -177,56 +166,35 @@ android {
 }
 
 afterEvaluate {
-    // Explicit dependencies for which the apk relies on
     tasks.mergeDebugAssets.dependsOn(":forge_installer:jar", ":arc_dns_injector:jar", ":methods_injector_agent:jar", ":jre_lwjgl3glfw:jar")
     tasks.mergeReleaseAssets.dependsOn(":forge_installer:jar", ":arc_dns_injector:jar", ":methods_injector_agent:jar", ":jre_lwjgl3glfw:jar")
 }
 
 dependencies {
-    // Firebase real-time sync (admin panel): announcements, notifications,
-    // sponsorship toggle and update management.
     implementation platform('com.google.firebase:firebase-bom:32.8.1')
     implementation 'com.google.firebase:firebase-database'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
     implementation 'commons-codec:commons-codec:1.15'
-    // implementation 'com.wu-man:android-bsf-api:3.1.3'
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'androidx.palette:palette:1.0.0'
-    // Required for ShortcutManagerCompat / IconCompat used by the home screen
-    // shortcut system (net.kdt.pojavlaunch.shortcuts). Gives us one API that
-    // covers the legacy broadcast path (21-24) and requestPinShortcut (25+).
     implementation 'androidx.core:core:1.13.1'
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
     implementation 'androidx.annotation:annotation:1.5.0'
-
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-
     implementation 'com.github.duanhong169:checkerboarddrawable:1.0.2'
     implementation 'com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc'
     implementation 'com.github.PojavLauncherTeam:portrait-ssp:6c02fd739b'
     implementation 'com.github.Mathias-Boulay:ExtendedView:1.0.0'
     implementation 'com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3'
     implementation 'com.github.Mathias-Boulay:virtual-joystick-android:1.14'
-
-    // implementation 'com.intuit.sdp:sdp-android:1.0.5'
-    // implementation 'com.intuit.ssp:ssp-android:1.0.5'
-
     implementation 'org.tukaani:xz:1.8'
-    // Our version of exp4j can be built from source at
-    // https://github.com/PojavLauncherTeam/exp4j
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.6.1'
     implementation 'com.bytedance:bytehook:1.0.9'
-    // Animated GIF support for profile backgrounds (native decoder, memory-efficient)
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.28'
-
-    // implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.0'
-
     implementation 'top.fifthlight.touchcontroller:proxy-client-android:0.0.4'
-
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-
     implementation "net.java.dev.jna:jna:5.13.0@aar"
     implementation 'com.google.android.material:material:1.12.0'
 }
